@@ -10,14 +10,14 @@ const allTags = [...new Set(posts.flatMap((p) => p.data.tags.concat(p.data.serie
 const fmt = (d: Date) => d.toISOString().slice(0, 10)
 ---
 
-<BaseLayout title="ankurtrapasiya" description="Writing about infrastructure, LLMs, and automation.">
+<BaseLayout title="ankurtrapasiya" description="Software engineer skilled in Distributed Systems.">
   <header class="site-header ui">
     <a class="site-name" href="/">ankurtrapasiya</a>
     <ThemeToggle />
   </header>
 
   <main>
-    <p class="tagline">Writing about infrastructure, LLMs, and automation.</p>
+    <p class="tagline">Software engineer skilled in Distributed Systems.</p>
 
     <p class="chips filter-bar" id="filters">
       <a class="chip is-active" href="#filter" data-filter="all"><code>all</code></a>
