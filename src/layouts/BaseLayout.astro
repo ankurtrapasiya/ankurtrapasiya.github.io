@@ -1,0 +1,36 @@
+---
+import '../styles/global.css'
+
+interface Props {
+  title: string
+  description?: string
+}
+const { title, description = '' } = Astro.props
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={description} />
+    <title>{title}</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  </head>
+  <body>
+    <script is:inline>
+      (() => {
+        const stored = localStorage.getItem('theme')
+        const prefers = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+        document.documentElement.dataset.theme = stored ?? prefers
+      })()
+    </script>
+    <div class="shell">
+      <slot />
+    </div>
+  </body>
+</html>
+
+<style>
+  .shell { max-width: 34rem; margin: 0 auto; padding: 3rem 1.5rem; }
+</style>

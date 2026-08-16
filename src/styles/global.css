@@ -1,0 +1,34 @@
+:root {
+  --bg: #fafafa;
+  --fg: #1a1a1a;
+  --muted: #6f6f6f;
+  --border: #e6e6e6;
+  --code-bg: #f2f2f2;
+  --inline-code-bg: #ededed;
+  --link-underline: rgba(26, 26, 26, 0.35);
+}
+
+[data-theme='dark'] {
+  --bg: #111111;
+  --fg: #e8e8e8;
+  --muted: #9a9a9a;
+  --border: #2a2a2a;
+  --code-bg: #1a1a1a;
+  --inline-code-bg: #1e1e1e;
+  --link-underline: rgba(232, 232, 232, 0.35);
+}
+
+html { background: var(--bg); color: var(--fg); }
+body { margin: 0; font-family: Georgia, 'Iowan Old Style', Charter, 'Times New Roman', serif; line-height: 1.65; font-size: 17px; }
+a { color: var(--fg); text-decoration: underline; text-decoration-color: var(--link-underline); text-underline-offset: 3px; }
+a:hover { text-decoration-color: var(--fg); }
+
+.meta, .ui, button, header, footer, .chips { font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif; }
+
+pre, code, kbd { font-family: ui-monospace, 'SF Mono', 'Cascadia Code', Menlo, Consolas, monospace; }
+code { background: var(--inline-code-bg); padding: 0.1em 0.35em; border-radius: 4px; font-size: 0.9em; }
+pre code { background: none; padding: 0; }
+
+/* Mermaid output is static SVG; dark mode inverts it (neutral theme = grayscale). */
+.post-body .mermaid, .post-body svg { max-width: 100%; height: auto; margin: 1.6em auto; display: block; }
+[data-theme='dark'] .post-body svg { filter: invert(0.92); }

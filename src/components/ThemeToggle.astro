@@ -1,0 +1,17 @@
+<button class="ui toggle" type="button" aria-label="Toggle light / dark">
+  ◐
+</button>
+
+<script>
+  const toggle = document.querySelector('.toggle')
+  toggle?.addEventListener('click', () => {
+    const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'
+    document.documentElement.dataset.theme = next
+    localStorage.setItem('theme', next)
+  })
+</script>
+
+<style>
+  .toggle { background: none; border: 1px solid var(--border); color: var(--muted); font-size: 15px; line-height: 1; padding: 0.25rem 0.55rem; border-radius: 6px; cursor: pointer; }
+  .toggle:hover { color: var(--fg); }
+</style>
