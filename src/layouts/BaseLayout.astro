@@ -32,5 +32,5 @@ const { title, description = '' } = Astro.props
 </html>
 
 <style>
-  .shell { max-width: 34rem; margin: 0 auto; padding: 3rem 1.5rem; }
+  .shell { max-width: clamp(32rem, 72%, 42rem); margin: 0 auto; padding: clamp(2.2rem, 5vw, 3.5rem) clamp(1rem, 4vw, 2rem); }
 </style>

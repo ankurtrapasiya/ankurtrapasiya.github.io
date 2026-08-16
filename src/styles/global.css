@@ -16,18 +16,27 @@
   --code-bg: #1a1a1a;
   --inline-code-bg: #1e1e1e;
   --link-underline: rgba(232, 232, 232, 0.35);
+  color-scheme: dark;
 }
 
 html { background: var(--bg); color: var(--fg); }
-body { margin: 0; font-family: Georgia, 'Iowan Old Style', Charter, 'Times New Roman', serif; line-height: 1.65; font-size: 17px; }
+body { margin: 0; font-family: Georgia, 'Iowan Old Style', Charter, 'Times New Roman', serif; line-height: 1.65; font-size: clamp(1rem, 0.8vw + 0.85rem, 1.2rem); }
 a { color: var(--fg); text-decoration: underline; text-decoration-color: var(--link-underline); text-underline-offset: 3px; }
 a:hover { text-decoration-color: var(--fg); }
+
+:focus-visible { outline: 2px solid var(--fg); outline-offset: 2px; }
 
 .meta, .ui, button, header, footer, .chips { font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif; }
 
 pre, code, kbd { font-family: ui-monospace, 'SF Mono', 'Cascadia Code', Menlo, Consolas, monospace; }
 code { background: var(--inline-code-bg); padding: 0.1em 0.35em; border-radius: 4px; font-size: 0.9em; }
 pre code { background: none; padding: 0; }
+pre { overflow-x: auto; max-width: 100%; }
+
+.post-body table { display: block; max-width: 100%; overflow-x: auto; border-collapse: collapse; margin: 1.6em 0; }
+.post-body th, .post-body td { border: 1px solid var(--border); padding: 0.4rem 0.7rem; font-size: 0.9em; }
+.post-body blockquote { border-left: 2px solid var(--border); margin-left: 0; padding-left: 1rem; color: var(--muted); }
+.post-body hr { border: 0; border-top: 1px solid var(--border); margin: 2em 0; }
 
 /* Mermaid output is static SVG; dark mode inverts it (neutral theme = grayscale). */
 .post-body .mermaid, .post-body svg { max-width: 100%; height: auto; margin: 1.6em auto; display: block; }
