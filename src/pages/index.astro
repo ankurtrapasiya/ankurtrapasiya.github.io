@@ -1,6 +1,64 @@
 ---
+import { getCollection } from 'astro:content'
 import BaseLayout from '../layouts/BaseLayout.astro'
+import ThemeToggle from '../components/ThemeToggle.astro'
+
+const posts = (await getCollection('posts'))
+  .filter((p) => !p.data.draft)
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
+const fmt = (d: Date) => d.toISOString().slice(0, 10)
 ---
+
 <BaseLayout title="ankurtrapasiya">
-  <h1 class="ui">Placeholder — Task 2 replaces this page.</h1>
+  <header class="site-header ui">
+    <a class="site-name" href="/">ankurtrapasiya</a>
+    <ThemeToggle />
+  </header>
+
+  <main>
+    <p class="tagline">Writing about infrastructure, LLMs, and automation.</p>
+
+    <ol class="posts">
+      {
+        posts.map((post) => (
+          <li class="post" data-tags={post.data.tags.concat(post.data.series ?? []).join(' ')}>
+            <time class="date">{fmt(post.data.date)}</time>
+            <h2><a href={`/posts/${post.id}/`}>{post.data.title}</a></h2>
+            <p class="summary">{post.data.summary}</p>
+            <p class="chips">
+              {
+                post.data.tags.map((tag) => (
+                  <a class="chip" href="#tag"><code>{tag}</code></a>
+                ))
+              }
+              {
+                post.data.series && <span class="chip chip-series"><code>{post.data.series}</code></span>
+              }
+            </p>
+          </li>
+        ))
+      }
+    </ol>
+  </main>
+
+  <footer class="footer ui">
+    © 2026 Ankur Trapasiya · <a href="https://github.com/ankurtrapasiya">GitHub ↗</a> · <a href="mailto:ankur.trapasiya@gmail.com">Email</a>
+  </footer>
 </BaseLayout>
+
+<style>
+  .site-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.25rem; }
+  .site-name { text-decoration: none; font-weight: 600; }
+  .tagline { color: var(--muted); margin: 0 0 2.25rem; }
+  .posts { list-style: none; margin: 0; padding: 0; }
+  .post { border-top: 1px solid var(--border); padding: 1.25rem 0; }
+  .date { color: var(--muted); font-size: 0.85em; display: block; margin-bottom: 0.25rem; }
+  .post h2 { margin: 0 0 0.4rem; font-size: 1.15rem; font-family: Georgia, 'Iowan Old Style', Charter, serif; font-weight: 600; }
+  .summary { color: var(--muted); margin: 0 0 0.75rem; }
+  .chips { display: flex; gap: 0.4rem; flex-wrap: wrap; margin: 0; }
+  .chips a { text-decoration: none; color: var(--muted); }
+  .chip code { background: none; border: 1px solid var(--border); border-radius: 999px; padding: 0.1em 0.6em; font-size: 0.78em; }
+  .chip:hover code { border-color: var(--fg); color: var(--fg); }
+  .chip-series code { border-style: dashed; }
+  .footer { border-top: 1px solid var(--border); margin-top: 3rem; padding-top: 1.5rem; color: var(--muted); font-size: 0.9em; }
+</style>
