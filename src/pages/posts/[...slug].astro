@@ -2,6 +2,7 @@
 import { getCollection, render } from 'astro:content'
 import BaseLayout from '../../layouts/BaseLayout.astro'
 import ThemeToggle from '../../components/ThemeToggle.astro'
+import { isoDate, stamp } from '../../lib/post'
 
 export async function getStaticPaths() {
   const posts = (await getCollection('posts')).filter((p) => !p.data.draft)
@@ -10,9 +11,6 @@ export async function getStaticPaths() {
 
 const { post } = Astro.props
 const { Content } = await render(post)
-const words = post.body.split(/\s+/).filter(Boolean).length
-const minutes = Math.max(1, Math.round(words / 200))
-const fmt = (d: Date) => d.toISOString().slice(0, 10)
 ---
 
 <BaseLayout title={`${post.data.title} · ankurtrapasiya`} description={post.data.summary}>
@@ -22,24 +20,27 @@ const fmt = (d: Date) => d.toISOString().slice(0, 10)
   </header>
 
   <article class="post">
-    <p class="meta">
-      <time datetime={fmt(post.data.date)}>{fmt(post.data.date)}</time>
-      · {minutes} min read
-      · {post.data.tags.join(', ')}
+    <div class="post-head">
+    <h1 class="title">{post.data.title}</h1>
+    <p class="stamp dateline">
+      <time datetime={isoDate(post.data.date)}>{stamp(post.data.date, post.body ?? '')}</time>
+      · {post.data.tags.join(' · ')}
       {post.data.github && <a class="github" href={`https://github.com/${post.data.github}`}>View on GitHub ↗</a>}
     </p>
-    <h1 class="title">{post.data.title}</h1>
     {post.data.series && <p class="series ui"><code>{post.data.series}</code></p>}
-    <Content class="post-body" />
+    </div>
+    <div class="post-body"><Content /></div>
   </article>
 </BaseLayout>
 
 <style>
-  .site-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2.75rem; }
+  .site-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 0.9rem; margin-bottom: 2.75rem; }
   .site-name { text-decoration: none; font-weight: 600; }
-  .meta { color: var(--muted); font-size: 0.85em; margin-bottom: 0.5rem; }
+  .title { font-size: 1.9rem; line-height: 1.2; margin: 0 0 0.5rem; font-weight: 600; }
+  .post-head { margin-bottom: 2.6rem; }
+  .dateline { margin: 0; }
+  .series { margin: 0.7rem 0 0; }
   .github { margin-left: 0.75rem; white-space: nowrap; }
-  .title { font-size: 1.7rem; line-height: 1.25; margin-bottom: 0.25rem; font-weight: 700; }
   .series code { border: 1px dashed var(--border); border-radius: 999px; padding: 0.1em 0.6em; font-size: 0.8em; color: var(--muted); }
   .post-body { color: var(--fg); }
 </style>

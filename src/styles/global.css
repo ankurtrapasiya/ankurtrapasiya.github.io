@@ -1,49 +1,102 @@
 :root {
-  --bg: #fafafa;
-  --fg: #1a1a1a;
-  --muted: #6f6f6f;
-  --border: #e6e6e6;
-  --code-bg: #f2f2f2;
-  --inline-code-bg: #ededed;
-  --link-underline: rgba(26, 26, 26, 0.35);
+  --serif: Georgia, 'Iowan Old Style', Charter, 'Times New Roman', serif;
+  --sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --mono: ui-monospace, 'SF Mono', 'Cascadia Code', Menlo, Consolas, monospace;
+
+  /* Line length is the point of the layout, so it is stated in ch, not rem. */
+  --measure: 68ch;
+
+  --bg: #fdfdfc;
+  --fg: #1c1b1a;
+  --muted: #6b6a67;
+  --border: #e5e4e0;
+  --code-bg: #f1efe9;
+  --code-border: #ddd8cc;
+  --inline-code-bg: #ebe8e1;
+  --link-underline: rgba(28, 27, 26, 0.3);
 }
 
 [data-theme='dark'] {
-  --bg: #111111;
-  --fg: #e8e8e8;
-  --muted: #9a9a9a;
-  --border: #2a2a2a;
-  --code-bg: #1a1a1a;
-  --inline-code-bg: #1e1e1e;
-  --link-underline: rgba(232, 232, 232, 0.35);
+  --bg: #131312;
+  --fg: #e9e8e6;
+  --muted: #9b9995;
+  --border: #2a2926;
+  --code-bg: #1f1e1b;
+  --code-border: #38352f;
+  --inline-code-bg: #262421;
+  --link-underline: rgba(233, 232, 230, 0.32);
   color-scheme: dark;
 }
 
 html { background: var(--bg); color: var(--fg); }
-body { margin: 0; font-family: Georgia, 'Iowan Old Style', Charter, 'Times New Roman', serif; line-height: 1.65; font-size: clamp(1rem, 0.8vw + 0.85rem, 1.2rem); }
+body { margin: 0; font-family: var(--serif); line-height: 1.65; font-size: clamp(1rem, 0.8vw + 0.85rem, 1.2rem); }
 a { color: var(--fg); text-decoration: underline; text-decoration-color: var(--link-underline); text-underline-offset: 3px; }
 a:hover { text-decoration-color: var(--fg); }
 
 :focus-visible { outline: 2px solid var(--fg); outline-offset: 2px; }
 
-.meta, .ui, button, header, footer, .chips { font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif; }
+.meta, .ui, button, header, footer, .chips { font-family: var(--sans); }
 
-pre, code, kbd { font-family: ui-monospace, 'SF Mono', 'Cascadia Code', Menlo, Consolas, monospace; }
+/* Datelines and read times, on the homepage list and on a post alike. */
+.stamp {
+  font-family: var(--sans);
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+pre, code, kbd { font-family: var(--mono); }
 code { background: var(--inline-code-bg); padding: 0.1em 0.35em; border-radius: 4px; font-size: 0.9em; }
 pre code { background: none; padding: 0; }
 pre { overflow-x: auto; max-width: 100%; }
 
+/* Headings carry asymmetric margin: far from the section they close, close to
+   the one they open. Symmetric margin is what makes long posts read flat. */
+.post-body h2,
+.post-body h3,
+.post-body h4 {
+  font-family: var(--serif);
+  line-height: 1.25;
+  margin: 2.6em 0 0.6em;
+}
+.post-body h2 { font-size: 1.45rem; font-weight: 600; }
+.post-body h3 { font-size: 1.15rem; font-weight: 600; }
+.post-body h4 {
+  font-family: var(--sans);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-top: 2.2em;
+}
+.post-body > *:first-child { margin-top: 0; }
+
+.post-body p { margin: 0 0 1.25em; }
+.post-body ul, .post-body ol { margin: 0 0 1.25em; padding-left: 1.3em; }
+.post-body li { margin-bottom: 0.4em; }
+.post-body li > ul, .post-body li > ol { margin: 0.4em 0 0; }
+.post-body pre { margin: 1.6em 0; padding: 0.9rem 1rem; border-radius: 6px; font-size: 0.85em; line-height: 1.55; }
+
+/* Shiki writes its theme background inline (#fff in light), which lands a hair
+   off the page background and stops reading as a block. Override it, and carry
+   the distinction on a border so it holds even for untagged plaintext fences. */
+.post-body pre.astro-code {
+  background-color: var(--code-bg) !important;
+  border: 1px solid var(--code-border);
+}
+
 .post-body table { display: block; max-width: 100%; overflow-x: auto; border-collapse: collapse; margin: 1.6em 0; }
 .post-body th, .post-body td { border: 1px solid var(--border); padding: 0.4rem 0.7rem; font-size: 0.9em; }
-.post-body blockquote { border-left: 2px solid var(--border); margin-left: 0; padding-left: 1rem; color: var(--muted); }
-.post-body hr { border: 0; border-top: 1px solid var(--border); margin: 2em 0; }
+.post-body blockquote { border-left: 2px solid var(--border); margin: 1.6em 0; padding-left: 1rem; color: var(--muted); }
+.post-body hr { border: 0; border-top: 1px solid var(--border); margin: 2.6em 0; }
 
 /* Mermaid output is static SVG; dark mode inverts it (neutral theme = grayscale). */
 .post-body .mermaid, .post-body svg { max-width: 100%; height: auto; margin: 1.6em auto; display: block; }
 [data-theme='dark'] .post-body svg { filter: invert(0.92); }
 
-[data-theme='dark'] .astro-code,
-[data-theme='dark'] .astro-code span {
-  background-color: var(--shiki-dark-bg) !important;
-  color: var(--shiki-dark) !important;
-}
+/* Dark: take Shiki's token colours, but keep our own block background so the
+   code block sits on the same surface as the rest of the page furniture. */
+[data-theme='dark'] .astro-code { color: var(--shiki-dark) !important; }
+[data-theme='dark'] .astro-code span { color: var(--shiki-dark) !important; }
