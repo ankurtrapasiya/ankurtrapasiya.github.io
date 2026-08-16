@@ -2,6 +2,7 @@
 import { getCollection, render } from 'astro:content'
 import BaseLayout from '../../layouts/BaseLayout.astro'
 import ThemeToggle from '../../components/ThemeToggle.astro'
+import { formatDate } from '../../lib/date'
 
 export async function getStaticPaths() {
   const posts = (await getCollection('posts')).filter((p) => !p.data.draft)
@@ -12,7 +13,7 @@ const { post } = Astro.props
 const { Content } = await render(post)
 const words = post.body.split(/\s+/).filter(Boolean).length
 const minutes = Math.max(1, Math.round(words / 200))
-const fmt = (d: Date) => d.toISOString().slice(0, 10)
+const fmt = (d: Date) => formatDate(d, true)
 ---
 
 <BaseLayout title={`${post.data.title} · ankurtrapasiya`} description={post.data.summary}>
