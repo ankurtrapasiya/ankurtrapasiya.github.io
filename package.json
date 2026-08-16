@@ -14,7 +14,6 @@
     "astro": "^7.2.2",
     "mermaid": "^11.16.1",
     "playwright": "^1.62.1",
-    "puppeteer": "^25.7.0",
     "rehype-mermaid": "^3.0.0"
   }
 }
