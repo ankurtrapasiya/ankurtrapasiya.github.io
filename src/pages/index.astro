@@ -6,6 +6,7 @@ import ThemeToggle from '../components/ThemeToggle.astro'
 const posts = (await getCollection('posts'))
   .filter((p) => !p.data.draft)
   .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
+const allTags = [...new Set(posts.flatMap((p) => p.data.tags.concat(p.data.series ?? [])))]
 const fmt = (d: Date) => d.toISOString().slice(0, 10)
 ---
 
@@ -17,6 +18,15 @@ const fmt = (d: Date) => d.toISOString().slice(0, 10)
 
   <main>
     <p class="tagline">Writing about infrastructure, LLMs, and automation.</p>
+
+    <p class="chips filter-bar" id="filters">
+      <a class="chip is-active" href="#filter" data-filter="all"><code>all</code></a>
+      {
+        allTags.map((tag) => (
+          <a class="chip" href="#filter" data-filter={tag}><code>{tag}</code></a>
+        ))
+      }
+    </p>
 
     <ol class="posts">
       {
@@ -61,4 +71,23 @@ const fmt = (d: Date) => d.toISOString().slice(0, 10)
   .chip:hover code { border-color: var(--fg); color: var(--fg); }
   .chip-series code { border-style: dashed; }
   .footer { border-top: 1px solid var(--border); margin-top: 3rem; padding-top: 1.5rem; color: var(--muted); font-size: 0.9em; }
+  .filter-bar { margin: 0 0 2rem; }
+  .chip.is-active code { color: var(--fg); border-color: var(--fg); }
+  .post[hidden] { display: none; }
 </style>
+
+<script>
+  const bar = document.querySelector<HTMLParagraphElement>('#filters')
+  const items = Array.from(document.querySelectorAll<HTMLLIElement>('.post'))
+  bar?.addEventListener('click', (event) => {
+    const chip = (event.target as HTMLElement).closest('[data-filter]') as HTMLElement | null
+    if (!chip) return
+    bar.querySelectorAll('.chip').forEach((c) => c.classList.remove('is-active'))
+    chip.classList.add('is-active')
+    const filter = chip.dataset.filter!
+    items.forEach((item) => {
+      const matches = filter === 'all' || item.dataset.tags!.split(' ').includes(filter)
+      item.hidden = !matches
+    })
+  })
+</script>
