@@ -4,7 +4,7 @@ date: 2026-08-16
 summary: I wanted to understand what actually happens when you type into a chat box. There's now a 122B model under my desk, and one number explains nearly every choice I made.
 tags: ["llm", "performance", "self-hosting", "rag"]
 github: ankurtrapasiya/outis-mneme
-draft: true
+draft: false
 ---
 
 I wanted to know what actually happens when you type into a chat box.
@@ -320,7 +320,7 @@ measuring, but continuously and while I'm not looking.
 The starting point turns out to be one flag. llama.cpp already has the endpoint;
 it's just switched off:
 
-```
+```bash
 $ curl -o /dev/null -w '%{http_code}\n' http://localhost:8080/metrics
 501
 ```
