@@ -2,105 +2,78 @@
 import { getCollection } from 'astro:content'
 import BaseLayout from '../layouts/BaseLayout.astro'
 import ThemeToggle from '../components/ThemeToggle.astro'
-import { formatDate } from '../lib/date'
 
 const posts = (await getCollection('posts'))
   .filter((p) => !p.data.draft)
   .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
 const allTags = [...new Set(posts.flatMap((p) => p.data.tags.concat(p.data.series ?? [])))]
-const fmt = (d: Date) => formatDate(d)
+const fmt = (d: Date) => d.toISOString().slice(0, 10)
 ---
 
 <BaseLayout title="ankurtrapasiya" description="Writing about infrastructure, LLMs, and automation.">
-  <header class="site-header">
-    <a class="name" href="/">ankurtrapasiya</a>
-    <nav class="nav">
-      <a href="https://github.com/ankurtrapasiya">github</a>
-      <a href="mailto:ankur.trapasiya@gmail.com">email</a>
-      <ThemeToggle />
-    </nav>
+  <header class="site-header ui">
+    <a class="site-name" href="/">ankurtrapasiya</a>
+    <ThemeToggle />
   </header>
 
-  <p class="bio">
-    I am a backend engineer who builds <strong>self-hosted LLM tooling</strong>.
-    This is where I write about infrastructure, LLMs, and automation. <a class="more" href="https://github.com/ankurtrapasiya">More about me.</a>
-  </p>
+  <main>
+    <p class="tagline">Writing about infrastructure, LLMs, and automation.</p>
 
-  <p class="chips filter-bar" id="filters">
-    <a class="chip is-active" href="#filter" data-filter="all"><code>all</code></a>
-    {
-      allTags.map((tag) => (
-        <a class="chip" href="#filter" data-filter={tag}><code>{tag}</code></a>
-      ))
-    }
-  </p>
+    <p class="chips filter-bar" id="filters">
+      <a class="chip is-active" href="#filter" data-filter="all"><code>all</code></a>
+      {
+        allTags.map((tag) => (
+          <a class="chip" href="#filter" data-filter={tag}><code>{tag}</code></a>
+        ))
+      }
+    </p>
 
-  <h2 class="sec">Some Recent Writing</h2>
-  <ol class="posts">
-    {
-      posts.map((post) => (
-        <li class="post" data-tags={post.data.tags.concat(post.data.series ?? []).join(' ')}>
-          <p class="postline">
-            <time class="date" datetime={post.data.date.toISOString()}>{fmt(post.data.date)}</time>
-            <a class="ptitle" href={`/posts/${post.id}/`}>{post.data.title}</a>
-            <span class="ptags">
-              {post.data.tags.concat(post.data.series ?? []).map((t) => <span>{t}</span>)}
-            </span>
-          </p>
-          <p class="summary">{post.data.summary}</p>
-        </li>
-      ))
-    }
-  </ol>
+    <ol class="posts">
+      {
+        posts.map((post) => (
+          <li class="post" data-tags={post.data.tags.concat(post.data.series ?? []).join(' ')}>
+            <time class="date">{fmt(post.data.date)}</time>
+            <h2><a href={`/posts/${post.id}/`}>{post.data.title}</a></h2>
+            <p class="summary">{post.data.summary}</p>
+            <p class="chips">
+              {
+                post.data.tags.map((tag) => (
+                  <a class="chip" href="#tag"><code>{tag}</code></a>
+                ))
+              }
+              {
+                post.data.series && <span class="chip chip-series"><code>{post.data.series}</code></span>
+              }
+            </p>
+          </li>
+        ))
+      }
+    </ol>
+  </main>
 
-  <h2 class="sec">Some Favorite Things</h2>
-  <div class="fav">
-    <a href="https://github.com/ankurtrapasiya">GitHub</a>
-    <a href="mailto:ankur.trapasiya@gmail.com">Email</a>
-  </div>
-
-  <footer class="foot">© 2026 Ankur Trapasiya</footer>
+  <footer class="footer ui">
+    © 2026 Ankur Trapasiya · <a href="https://github.com/ankurtrapasiya">GitHub ↗</a> · <a href="mailto:ankur.trapasiya@gmail.com">Email</a>
+  </footer>
 </BaseLayout>
 
 <style>
-  .site-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.1rem; }
-  .name { font-family: 'Source Serif 4', Georgia, serif; font-size: 19px; font-weight: 600; }
-  .nav { display: flex; align-items: center; gap: 1.2rem; font-size: 18px; font-family: 'Source Serif 4', Georgia, serif; }
-  .nav a { text-decoration: none; }
-  .nav a:hover { color: var(--accent); }
-
-  .bio { margin: 2rem 0 2.2rem; line-height: 1.55; }
-  .bio .more { font-size: 0.9em; }
-
-  .sec { font-size: 0.85rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted);
-    font-family: 'Source Serif 4', Georgia, serif; font-weight: 600; margin: 0 0 0.6rem; }
-
-  .filter-bar { display: flex; gap: 0.4rem; flex-wrap: wrap; margin: 0 0 1.4rem; }
-  .filter-bar a { text-decoration: none; color: var(--muted); }
-  .chip code { background: none; border: 1px solid var(--border); border-radius: 999px; padding: 0.08em 0.6em; font-size: 0.72em; color: inherit; }
-  .chip:hover code { border-color: var(--accent); color: var(--accent); }
-  .chip.is-active code { color: var(--fg); border-color: var(--muted); }
-
+  .site-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.25rem; }
+  .site-name { text-decoration: none; font-weight: 600; }
+  .tagline { color: var(--muted); margin: 0 0 2.25rem; }
   .posts { list-style: none; margin: 0; padding: 0; }
-  .post { border-top: 1px solid var(--border); padding: 0.55rem 0 0.75rem; }
+  .post { border-top: 1px solid var(--border); padding: 1.25rem 0; }
+  .date { color: var(--muted); font-size: 0.85em; display: block; margin-bottom: 0.25rem; }
+  .post h2 { margin: 0 0 0.4rem; font-size: 1.15rem; font-family: Georgia, 'Iowan Old Style', Charter, serif; font-weight: 600; }
+  .summary { color: var(--muted); margin: 0 0 0.75rem; }
+  .chips { display: flex; gap: 0.4rem; flex-wrap: wrap; margin: 0; }
+  .chips a { text-decoration: none; color: var(--muted); }
+  .chip code { background: none; border: 1px solid var(--border); border-radius: 999px; padding: 0.1em 0.6em; font-size: 0.78em; }
+  .chip:hover code { border-color: var(--fg); color: var(--fg); }
+  .chip-series code { border-style: dashed; }
+  .footer { border-top: 1px solid var(--border); margin-top: 3rem; padding-top: 1.5rem; color: var(--muted); font-size: 0.9em; }
+  .filter-bar { margin: 0 0 2rem; }
+  .chip.is-active code { color: var(--fg); border-color: var(--fg); }
   .post[hidden] { display: none; }
-  .postline { display: flex; align-items: baseline; gap: 1rem; margin: 0; }
-  .date { color: var(--muted); font-size: 0.82em; white-space: nowrap; }
-  .ptitle { font-size: 1.12rem; font-weight: 600; }
-  .ptitle:hover { color: var(--accent); }
-  .ptags { margin-left: auto; color: var(--muted); font-size: 0.72em; }
-  .ptags span { margin-left: 0.5rem; white-space: nowrap; }
-  .summary { color: var(--muted); margin: 0.25rem 0 0 6.5rem; font-size: 0.95em; }
-
-  .fav { display: flex; gap: 1.4rem; }
-  .fav a:hover { color: var(--accent); }
-
-  .foot { margin-top: 3rem; padding-top: 1rem; border-top: 1px solid var(--border); color: var(--muted); font-size: 0.85em; }
-
-  @media (max-width: 40rem) {
-    .ptags { display: none; }
-    .summary { margin-left: 0; }
-  }
 </style>
 
 <script>
