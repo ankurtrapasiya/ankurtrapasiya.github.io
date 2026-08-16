@@ -13,6 +13,9 @@ export default defineConfig({
         dark: 'github-dark',
       },
     },
+    // Astro 7: `unified()` is the ONLY markdown plugin surface. Top-level
+    // `markdown.remarkPlugins` / `markdown.rehypePlugins` are silently ignored
+    // under the Sätteri default — pass every plugin into `unified({...})`.
     processor: unified({
       rehypePlugins: [
         [
