@@ -32,3 +32,9 @@ pre code { background: none; padding: 0; }
 /* Mermaid output is static SVG; dark mode inverts it (neutral theme = grayscale). */
 .post-body .mermaid, .post-body svg { max-width: 100%; height: auto; margin: 1.6em auto; display: block; }
 [data-theme='dark'] .post-body svg { filter: invert(0.92); }
+
+[data-theme='dark'] .astro-code,
+[data-theme='dark'] .astro-code span {
+  background-color: var(--shiki-dark-bg) !important;
+  color: var(--shiki-dark) !important;
+}
