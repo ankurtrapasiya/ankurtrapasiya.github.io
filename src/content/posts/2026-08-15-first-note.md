@@ -16,5 +16,11 @@ flowchart LR
     B --> C[static pages site]
 ```
 
-The `github` frontmatter above drives the "View on GitHub" link that the post
-template renders (Task 4).
+JavaScript blocks get light and dark code themes at build time:
+
+```js
+const minutes = Math.max(1, Math.round(words / 200))
+```
+
+The `github` frontmatter above drives the "View on GitHub" link that the
+post template renders (Task 4).
