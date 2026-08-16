@@ -30,7 +30,8 @@ the whole machine.
 
 ## Fork one: don't use Ollama
 
-Everyone starts with Ollama. I nearly did, then read
+Everyone starts with [Ollama](https://github.com/ollama/ollama). I nearly did,
+then read
 [Stop Using Ollama](https://sleepingrobots.com/dreams/stop-using-ollama/), which
 lays out how Ollama wrapped Georgi Gerganov's llama.cpp, spent a year not
 mentioning it in the README, and later forked to a custom backend that
@@ -45,7 +46,8 @@ to learn the machine.
 
 ## Fork two: a model good enough to show me what wasn't
 
-I started on **Qwen3.6-27B at Q8_0**, after reading
+I started on **[Qwen3.6-27B](https://huggingface.co/Qwen/Qwen3.6-27B) at Q8_0**,
+after reading
 [Qwen 3.6 is awesome](https://quesma.com/blog/qwen-36-is-awesome/) — the author
 calls it the first local model that makes sense as a general intelligence, and
 for chat and summarizing, they're right. It was genuinely good.
@@ -84,8 +86,9 @@ Three tokens a second is a machine you stop opening. And that's the theoretical
 figure, before reality takes its cut.
 
 The way out is a **Mixture-of-Experts** model. The one I run is
-Qwen3.5-**122B-A10B**, and that `A10B` is the whole trick: 122B parameters in
-total, but only ~10B *active* per token. Each token gets routed through a small
+[Qwen3.5-**122B-A10B**](https://huggingface.co/Qwen/Qwen3.5-122B-A10B), and that
+`A10B` is the whole trick: 122B parameters in total, but only ~10B *active* per
+token. Each token gets routed through a small
 subset of expert layers instead of all of them. The full model still has to fit
 in memory — but only the active slice gets read.
 
@@ -197,21 +200,26 @@ Then the interesting failures started.
 **The default embedder was wrong for books.** Open WebUI ships with
 `all-MiniLM-L6-v2`, which is fine for chat-sized snippets and hopeless for
 typeset pages — its context window chops a page into fragments mid-thought. I
-swapped it for **nomic-embed-text-v1.5** at Q8_0, running as its own llama.cpp
-process with an 8192-token window, so a long page survives as a single chunk.
+swapped it for
+**[nomic-embed-text-v1.5](https://huggingface.co/nomic-ai/nomic-embed-text-v1.5)**
+at Q8_0, running as its own llama.cpp process with an 8192-token window, so a
+long page survives as a single chunk.
 
 It runs as a separate service deliberately. Embedding happens constantly — every
 upload, every query — while generations are long and serial. Share one process
 and your embedding jobs queue up behind somebody's 2,000-token answer.
 
-**Then PDF extraction ate weeks.** Open WebUI's built-in extractor is pypdf,
+**Then PDF extraction ate weeks.** Open WebUI's built-in extractor is
+[pypdf](https://github.com/py-pdf/pypdf),
 which inserts spurious spaces into typeset books: "an e xample", "the ne xt
 step." I assumed that was cosmetic. It isn't — `e xample` embeds as a completely
 different vector than `example`, so every mangled word quietly poisons
 retrieval. The text looked *almost* fine, which is why it took me so long to
 suspect it.
 
-I went through Tika, then Docling, then MinerU. Open WebUI only lets you
+I went through [Tika](https://tika.apache.org/), then
+[Docling](https://github.com/docling-project/docling), then
+[MinerU](https://github.com/opendatalab/MinerU). Open WebUI only lets you
 configure **one** extractor, so I ended up writing a small router to take that
 slot and dispatch per document:
 
@@ -357,5 +365,6 @@ what this machine could do than every benchmark chart I read put together.
 - [llama.cpp](https://github.com/ggml-org/llama.cpp) — the engine all of this runs on
 - [Open WebUI](https://github.com/open-webui/open-webui) — chat UI and knowledge bases
 - [ServeTheHome on the ASUS Ascent GX10](https://www.servethehome.com/this-is-the-asus-ascent-gx10-a-nvidia-gb10-mini-pc-with-128gb-of-memory-and-200gbe/) — where the 276 GB/s figure comes from
+- [Qwen3.5-122B-A10B](https://huggingface.co/Qwen/Qwen3.5-122B-A10B) — the model every number here was measured against
 - [Qwen3.8-27B](https://huggingface.co/Qwen/Qwen3.8-27B) — next on the list, and a test of the prediction above
 - [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) — plugin-based agent framework I want to build on
