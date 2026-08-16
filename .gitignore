@@ -5,3 +5,8 @@ dist/
 .superpowers/
 .obsidian/
 assets/
+
+# Drafts. An underscore-prefixed post stays local: Astro still builds it for
+# `npm run dev`, so it previews like the real thing, but git never sees it and
+# CI can only build what's committed. Drop the underscore to publish.
+src/content/posts/_*.md

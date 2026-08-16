@@ -7,6 +7,13 @@ agent is almost always one thing: **write or edit a single post**, then stop.
 
 Create or edit files under `src/content/posts/`, named `YYYY-MM-DD-<slug>.md`.
 
+**Start every new post with an underscore: `_YYYY-MM-DD-<slug>.md`.** Underscore
+files are gitignored, so a draft never leaves this machine — but Astro still
+builds them, so `npm run dev` previews one exactly like a published post. The
+repo is public; `draft: true` hides a post from the site, not from GitHub, and
+the underscore is what actually keeps unfinished work private. Drop the
+underscore and set `draft: false` only when it's ready to publish.
+
 Frontmatter:
 
 | field   | type        | required | notes                                            |
@@ -42,16 +49,18 @@ npm run build         # must print "Complete!"
 - Touch anything outside `src/content/posts/` (no layout/CSS/workflow edits)
   unless the task explicitly requires it.
 - Invent facts, versions, or quotes. Ask the human for source material.
-- Commit or push unless asked. Default to finishing with `draft: true`
-  and presenting the file for review.
+- Commit or push unless asked. Default to finishing with an underscore-prefixed
+  filename and `draft: true`, then present the file for review.
 
 ## Reusable weekly prompt
 
 ```
 Write this week's post for the ankurtrapasiya.github.io blog.
 Topic: <topic>. Source repos/notes: <material>.
-1. Create src/content/posts/YYYY-MM-DD-<slug>.md with frontmatter per AGENTS.md.
+1. Create src/content/posts/_YYYY-MM-DD-<slug>.md (underscore = gitignored
+   draft) with frontmatter per AGENTS.md.
 2. Use mermaid fences for diagrams; GitHub refs as plain links or `github:`.
+   Tag every code fence with its language.
 3. Run `npm run check:posts`; ensure exit 0. Leave `draft: true`.
 4. Do NOT commit or push — show me the full file for review.
 ```

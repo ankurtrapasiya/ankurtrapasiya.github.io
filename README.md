@@ -37,6 +37,12 @@ Astro, deployed to GitHub Pages. One post is one Markdown file in
 `src/content/posts/`, named `YYYY-MM-DD-slug.md`. Push to `main` and the
 GitHub Action validates, builds, and deploys it.
 
+Drafts get an underscore — `_YYYY-MM-DD-slug.md`. Those are gitignored, so
+unfinished writing stays on my machine, but Astro still builds them locally and
+`npm run dev` previews one exactly like a published post. Drop the underscore
+when it's ready. (`draft: true` only hides a post from the site; this repo is
+public, so the underscore is what actually keeps it private.)
+
 `AGENTS.md` holds the full authoring contract.
 
 ### Frontmatter
