@@ -1,5 +1,5 @@
 ---
-title: Building my own AI, one wrong assumption at a time
+title: Building my own AI, one tradeoff at a time
 date: 2026-08-16
 summary: I wanted to understand what actually happens when you type into a chat box. There's now a 122B model under my desk, and one number explains nearly every choice I made.
 tags: ["llm", "performance", "self-hosting", "rag"]
@@ -24,9 +24,11 @@ and think about is equally unattributable. That felt like the right name for a
 box whose whole point is that it doesn't phone anyone.
 
 The hardware is an [ASUS Ascent GX10](https://www.amazon.ca/dp/B0GSZQTSJZ):
-NVIDIA GB10, 128GB of unified LPDDR5x. Remember that word *unified* — CPU and
-GPU share one pool of memory. It turns out to be the most important fact about
-the whole machine.
+[NVIDIA GB10](https://www.nvidia.com/en-us/products/workstations/dgx-spark/),
+128GB of unified LPDDR5x. Unified, meaning the CPU and the GPU
+share one pool of memory instead of each keeping its own. I didn't think much of
+that when I bought the box. It ended up behind almost every decision I made
+afterwards.
 
 ## Fork one: don't use Ollama
 
@@ -62,35 +64,39 @@ So I went looking for something bigger, and immediately hit the obvious wall: a
 
 ## The one number that explains everything
 
-This is the thing I actually came here to learn, so let me take it slowly.
+This is the thing I came here to learn, and it turned out to be simpler than I
+expected.
 
-Generating one token means reading the model's weights out of memory. Not doing
-something clever with them — *reading* them. So the ceiling on speed isn't how
-fast the GPU multiplies, it's how fast memory can hand bytes over:
+To produce one word, the machine reads the model out of memory. Not think about
+it — read it. Which means the thing setting the speed limit isn't how fast the
+GPU can do maths. It's how fast memory can hand the bytes over. So the speed is
+a division:
 
 ```
-tokens/sec  ≈  memory bandwidth ÷ bytes read per token
+words per second  =  bytes memory can move in a second
+                     ────────────────────────────────
+                       bytes one word costs to read
 ```
 
-The GX10 has about 276 GB/s of memory bandwidth. (ASUS doesn't publish that
-figure on their own spec page, oddly — it comes from
+The GX10 moves about 276 GB every second. (ASUS doesn't publish that number on
+their own spec page, oddly — it comes from
 [ServeTheHome's coverage](https://www.servethehome.com/this-is-the-asus-ascent-gx10-a-nvidia-gb10-mini-pc-with-128gb-of-memory-and-200gbe/).)
 
-A dense 122B model reads all ~90GB every single token. Do the division:
+An ordinary 122B model is about 90GB on disk, and it reads all 90 of them for
+every single word. So:
 
 ```
-276 GB/s ÷ 90.4 GB  ≈  3 tokens/sec
+276 ÷ 90  ≈  3 words per second
 ```
 
-Three tokens a second is a machine you stop opening. And that's the theoretical
-figure, before reality takes its cut.
+Three words a second is a machine you stop opening.
 
-The way out is a **Mixture-of-Experts** model. The one I run is
-[Qwen3.5-**122B-A10B**](https://huggingface.co/Qwen/Qwen3.5-122B-A10B), and that
-`A10B` is the whole trick: 122B parameters in total, but only ~10B *active* per
-token. Each token gets routed through a small
-subset of expert layers instead of all of them. The full model still has to fit
-in memory — but only the active slice gets read.
+What saves it is a different kind of model, called Mixture-of-Experts. The one I
+run is [Qwen3.5-**122B-A10B**](https://huggingface.co/Qwen/Qwen3.5-122B-A10B),
+and that `A10B` in the name is the whole trick. The model is 122B in total, but
+it's split into chunks, and each word only goes through about 10B worth of them.
+The rest sits in memory untouched for that word. All of it still has to fit in
+the box — but only the small part in use has to be read.
 
 ```mermaid
 flowchart LR
@@ -104,36 +110,37 @@ flowchart LR
     E2 --> O
 ```
 
-So it reads about 7.25GB per token instead of 90. Same division:
+So it reads about 7.25GB per word instead of 90. Same division:
 
 ```
-276 GB/s ÷ 7.25 GB  ≈  38 tokens/sec
+276 ÷ 7.25  ≈  38 words per second
 ```
 
-That's the difference between a toy and a tool. Which means the model choice was
-never really about quality — it was about which model's *shape* fits the memory
-bus.
+Three, or thirty-eight. Same box, same amount of memory filled, same size of
+model on disk. The only thing that changed is how much of it gets read each
+time. So picking a model was never really a question about how clever the model
+is. It was a question about how much of it my machine has to read.
 
-## Does the arithmetic survive the machine?
+## Then I actually measured it
 
-I'd been repeating that equation to myself for months without once checking it
-against the box. So I finally did: six runs, distinct prompts so nothing came
-from cache, thinking mode off so I was timing generation rather than
-variable-length reasoning.
+I'd been repeating that division to myself for months without once checking it
+against the box in front of me. So I finally did. Six runs, six different
+prompts so nothing came back from a cache.
 
 ```
 generation  n=6  mean 26.97  stdev 0.02  min 26.93  max 27.00 tok/s
 ```
 
-Predicted 38, measured **26.97** — about 71% of theoretical. That's a
-thoroughly boring number and I was delighted by it: no real memory subsystem
-hits its spec sheet, and 70-ish percent is what "nothing is wrong" looks like.
-The back-of-envelope predicted my machine.
+The paper version said 38 a second. The box does 27. That's about 70% of what
+the spec sheet promises, and I was happy to see it — memory never quite runs at
+its rated speed once it's in a real machine, and 70-ish percent is roughly what
+normal looks like. A division I did on paper predicted a machine sitting on my
+desk. That still feels like a good day.
 
-The other tell is the standard deviation. **0.02 tok/s across six runs.** I have
-never measured anything that stable in my life. Nothing is contending, nothing
-is scheduling, nothing is waiting on anything else — the workload is memory
-bandwidth and essentially nothing else.
+The part I didn't expect was how little the number moved. Across six runs it
+went from 26.93 to 27.00 and that's it. Usually when you measure something twice
+you get two answers. Here nothing else is competing for the machine — it's
+reading memory, and only reading memory, at the same rate every time.
 
 (Versions, because this kind of claim rots fast: llama.cpp build
 `b10326-3653e6d6d`, Q5_K_M, 256K context, `--parallel 1`.)
@@ -149,40 +156,47 @@ cost of setting up a request completely swamps the actual work, so I was
 carefully timing overhead. The server's own logs, grinding through a
 21,846-token prompt, told the truth at ~620 tok/s sustained.
 
-The reason those numbers differ so wildly is the useful part: prompt processing
-is compute-bound and batches beautifully — you can feed the GPU thousands of
-tokens at once. Generation is bandwidth-bound and can't batch at all, because
-each token depends on the one before it. Two completely different regimes living
-in the same server, and a tiny prompt can't see either of them.
+The gap between those two numbers is the useful part. Reading your question and
+writing the answer are two different jobs. Reading can be done in bulk — the
+machine can chew through thousands of words of your question at once, so it's
+fast. Writing can't, because each word it writes depends on the word before it,
+so it goes one at a time and waits on memory each time. Same server, two very
+different speeds, and a 20-word prompt is too small to show you either.
 
-## What the context window actually costs
+## What a long conversation costs
 
-That error made me suspicious of another claim I'd written in my own README with
-no evidence behind it: that quantizing the KV cache is "what makes a 256K
-context fit."
+That mistake made me suspicious of something else I'd written in my own README
+with nothing behind it: that shrinking the conversation memory is "what makes a
+256K context fit."
 
-The KV cache is the model's working memory of the conversation. At depth,
-generating each new token means re-reading all of it — so it's a second term in
-that same bandwidth equation. I measured generation speed at four context
-depths:
+Here's what that claim is about. While you talk to the model, it keeps a running
+record of the conversation so it doesn't have to re-read your words from scratch
+every time. That record has a name — the KV cache — and it lives in the same
+memory as the model. Every new word the model writes, it reads that whole record
+again. So a long conversation isn't just longer. It's slower, for the same
+reason the model itself is slow: more bytes to get through.
 
-| Context tokens | Generation | vs empty |
+I measured it at four conversation lengths:
+
+| Words of conversation so far | Speed | vs a fresh chat |
 |---|---|---|
 | 22 | 27.68 tok/s | — |
 | 4,025 | 27.09 tok/s | −2.1% |
 | 15,915 | 25.44 tok/s | −8.1% |
 | 31,929 | 23.30 tok/s | −15.8% |
 
-Plot seconds-per-token against depth and it's a straight line — R² of 0.999. The
-slope says every token of context costs about **41.8 KB** of extra reading, on
-every token you generate. Extrapolated to a full 256K context:
+The slowdown is a clean straight line (R² 0.999), which makes it easy to project
+forwards. Each word of conversation adds about **42 KB** that gets re-read for
+every word the model writes. Carry that out to a full 256K conversation and the
+record alone needs:
 
-- **11.2 GB** for the cache, quantized to q8_0
-- **22.4 GB** for the same cache at fp16
+- **11 GB**, stored the compact way
+- **22 GB**, stored the way it comes by default
 
-On a 128GB box already holding 90GB of weights, that 11GB gap is exactly the
-difference between the context fitting and not fitting. The claim was right — it
-just hadn't earned itself until there was a number under it.
+The box has 128GB and the model is already sitting in 90 of them. So that 11GB
+difference is the whole story: one version leaves room for a long conversation,
+the other doesn't. The README was right. It just hadn't earned it until there
+was a number under it.
 
 ## What all of this was actually for
 
@@ -198,7 +212,8 @@ OpenAI-compatible endpoint, which llama.cpp already speaks.
 Then the interesting failures started.
 
 **The default embedder was wrong for books.** Open WebUI ships with
-`all-MiniLM-L6-v2`, which is fine for chat-sized snippets and hopeless for
+[`all-MiniLM-L6-v2`](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2),
+which is fine for chat-sized snippets and hopeless for
 typeset pages — its context window chops a page into fragments mid-thought. I
 swapped it for
 **[nomic-embed-text-v1.5](https://huggingface.co/nomic-ai/nomic-embed-text-v1.5)**
@@ -281,12 +296,12 @@ The thing I keep coming back to is that I've nearly filled the box. Peak memory
 sits around 120GB of 128, and the GPU tops out near 96%. Right now, idle, the
 host reports 107GB in use with 14 free.
 
-Which is the same arithmetic from the top of this post, arriving from the other
-direction. 90GB of weights, plus ~11GB of KV cache at full context, is 101GB
-before the embedding model, the extractors and the UI have asked for anything.
-The equation predicted how fast this machine would be, and it predicted where it
-would run out. That's the part I didn't expect when I started — that one number
-would turn out to describe *both* ceilings.
+Which is the same sum from the top of this post, coming at me from the other
+side. 90GB of model, plus the 11GB of conversation record at full length, is
+101GB before the embedding model, the extractors and the UI have asked for
+anything. The same division told me how fast this machine would be and where it
+would run out of room. I didn't expect that when I started — that one number
+would end up describing both walls.
 
 (A small aside I enjoyed: `nvidia-smi` reports `[N/A]` for GPU memory on this
 box. With unified memory there is no separate GPU pool to report. The tool has
@@ -296,28 +311,29 @@ So there's a long way to go, and that's the fun part. Two things I'm heading for
 next:
 
 **[Qwen3.8-27B](https://huggingface.co/Qwen/Qwen3.8-27B)**, which landed under
-Apache 2.0 in mid-August — a dense 27B with native vision and a 262K context.
-And here the equation makes a prediction I find genuinely funny. Dense means it
-reads *all* its weights every token, so on this hardware:
+Apache 2.0 in mid-August — a 27B with vision built in and a 262K context. Doing
+the same division on it gave me a result I found genuinely funny. It's an
+ordinary model, so it reads all of itself every word:
 
-| Model | Bytes read/token | Speed |
+| Model | Bytes read per word | Speed |
 |---|---|---|
-| Qwen3.8-27B dense, Q5_K_M | 19.6 GB | ~10 tok/s (predicted) |
-| Qwen3.5-122B-A10B MoE, Q5_K_M | 7.25 GB | **26.97 tok/s (measured)** |
+| Qwen3.8-27B, Q5_K_M | 19.6 GB | ~10 tok/s (predicted) |
+| Qwen3.5-122B-A10B, Q5_K_M | 7.25 GB | **26.97 tok/s (measured)** |
 
-The 122B model should be roughly **2.7× faster than the 27B one**. A model with
-four and a half times the parameters, running nearly three times quicker, on the
-same box. That is the whole thesis of this post compressed into one comparison:
-on bandwidth-limited hardware, parameter count tells you almost nothing about
-speed — *active* parameter count tells you everything. I'll run it and find out
-whether I'm right.
+So the 122B should run about **2.7× faster than the 27B**. The bigger model,
+four and a half times the size, going nearly three times quicker, on the same
+box. Which is the point of this whole post in one row: on a machine like this,
+how big a model is tells you almost nothing about how fast it'll be. How much of
+it gets read tells you everything. I'll run it and find out if I'm right.
 
 **[DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness)**, an
 agent framework built entirely around plugins — "everything is a plugin." It's
 in developer preview, so I expect sharp edges, but the architecture is the right
 shape for where I actually want to end up.
 
-**A Prometheus and Grafana stack**, so I can stop doing this by hand. Every
+**A [Prometheus](https://prometheus.io/docs/introduction/overview/) and
+[Grafana](https://grafana.com/docs/grafana/latest/) stack**, so I can stop doing
+this by hand. Every
 number in this post came from me curling an endpoint, grepping a log, or fitting
 a line in a throwaway script. That's fine for answering one question once. It's
 useless for the thing I actually want, which is noticing that generation got
@@ -354,9 +370,9 @@ The whole stack — compose file, extraction router, docs — is at
 also ended up writing a custom Open WebUI theme along the way, which is its own
 story for another post.
 
-If you're building something similar: spend ten minutes with that first equation
-and your own hardware's bandwidth before you pick a model. It told me more about
-what this machine could do than every benchmark chart I read put together.
+If you're building something similar: before you pick a model, spend ten minutes
+doing that first division with your own machine's numbers. It told me more about
+what this box could do than every benchmark chart I read put together.
 
 **References**
 
