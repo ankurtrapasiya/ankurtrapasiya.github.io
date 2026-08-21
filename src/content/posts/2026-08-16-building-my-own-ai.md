@@ -3,7 +3,6 @@ title: Building my own AI, one tradeoff at a time
 date: 2026-08-16
 summary: I wanted to understand what actually happens when you type into a chat box. There's now a 122B model under my desk, and one number explains nearly every choice I made.
 tags: ["llm", "performance", "self-hosting", "rag"]
-github: ankurtrapasiya/outis-mneme
 draft: false
 ---
 
@@ -365,9 +364,7 @@ nearly run out of memory to think with.
 
 Which means there's plenty left to take apart. Good.
 
-The whole stack — compose file, extraction router, docs — is at
-[ankurtrapasiya/outis-mneme](https://github.com/ankurtrapasiya/outis-mneme). I
-also ended up writing a custom Open WebUI theme along the way, which is its own
+I also ended up writing a custom Open WebUI theme along the way, which is its own
 story for another post.
 
 If you're building something similar: before you pick a model, spend ten minutes
