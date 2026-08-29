@@ -2,7 +2,7 @@
 title: Most of what I automated didn't need a model
 date: 2026-08-29
 summary: I gave the box under my desk an agent so it could act on its own instead of waiting to be asked. Seven jobs run on a schedule now. Six of them never call the model at all, and working out which one does was the useful part.
-tags: ["agents", "self-hosting", "llm", "automation"]
+tags: ["agents", "hermes", "self-hosting", "llm", "automation"]
 draft: true
 ---
 
@@ -11,7 +11,7 @@ The box under my desk could think and couldn't do anything.
 That's not a complaint about the model. Two posts back I worked out
 [why it runs at the speed it does](/posts/2026-08-16-building-my-own-ai/), and
 last week I found
-[the term my own equation was missing](/posts/2026-08-20-the-equation-was-missing-a-term/)
+[the term my own equation was missing](/posts/2026-08-20-right-and-still-fooled-me/)
 and roughly doubled it. What I had at the end of all that was a very good chat
 window. You type, it answers, you close the tab. Nothing it says touches
 anything.

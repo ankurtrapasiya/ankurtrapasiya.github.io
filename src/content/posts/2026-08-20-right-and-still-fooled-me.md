@@ -1,5 +1,5 @@
 ---
-title: The equation I published was missing a term
+title: My equation was right and still fooled me
 date: 2026-08-20
 summary: Four days after I wrote that Mixture-of-Experts was the only way to get usable speed out of this box, a dense 27B model turned up that beats it. The division I'd been so pleased with wasn't wrong — it just assumed something I never noticed I'd assumed.
 tags: ["llm", "performance", "self-hosting", "inference"]
