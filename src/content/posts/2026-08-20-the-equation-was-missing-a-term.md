@@ -196,7 +196,7 @@ head, go and check. It took one flag and it doubled my machine.
 - [Qwen3.5-122B-A10B model card](https://huggingface.co/Qwen/Qwen3.5-122B-A10B) — the model this replaced
 - [llama.cpp](https://github.com/ggml-org/llama.cpp)
 
-Versions, because this kind of claim rots fast: llama.cpp build `10524-9ee9fc04c`,
+Versions, because this kind of claim rots fast: llama.cpp build `b10524-9ee9fc04c`,
 Qwen3.8-27B at Q5_K_M with the Q4_0 draft head, `--ctx-size 262144`,
 `--parallel 1`, no quantized KV cache. NVIDIA GB10, 128GB unified. The 122B
-figure is from my own earlier measurement on build `10326-3653e6d6d`.
+figure is from my own earlier measurement on build `b10326-3653e6d6d`.

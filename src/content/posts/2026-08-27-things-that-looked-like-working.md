@@ -296,7 +296,7 @@ know it.
 - [RFC 4791: CalDAV](https://datatracker.ietf.org/doc/html/rfc4791) — how a Linux box writes to Apple Reminders
 - [systemd.service](https://www.freedesktop.org/software/systemd/man/latest/systemd.service.html) — `Type=forking`, `PIDFile`, and why user units can't order against system units
 
-Versions: Hermes Agent v0.20.5 (2026.8.19); llama.cpp build `10524-9ee9fc04c`
+Versions: Hermes Agent v0.20.5 (2026.8.19); llama.cpp build `b10524-9ee9fc04c`
 serving Qwen3.8-27B at Q5_K_M with the Q4_0 MTP draft head, `--ctx-size 262144`,
 `--parallel 1`; NVIDIA GB10, 128GB unified. Token counts are from
 `~/.hermes/state.db` covering 2026-08-24 to 2026-08-27.
