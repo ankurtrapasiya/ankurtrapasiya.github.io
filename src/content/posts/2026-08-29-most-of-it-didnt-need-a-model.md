@@ -3,7 +3,7 @@ title: Most of what I automated didn't need a model
 date: 2026-08-29
 summary: I gave the box under my desk an agent so it could act on its own instead of waiting to be asked. Seven jobs run on a schedule now. Six of them never call the model at all, and working out which one does was the useful part.
 tags: ["agents", "hermes", "self-hosting", "llm", "automation"]
-draft: true
+draft: false
 ---
 
 The box under my desk could think and couldn't do anything.
