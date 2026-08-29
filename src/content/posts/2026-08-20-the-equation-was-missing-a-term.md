@@ -47,7 +47,7 @@ downgrade the division predicted — 10.6 against the 10 I'd written down.
 
 Except the prediction was luckier than it looks, and I'd rather say so than let
 you find it. I'd used 19.6 GB for the size of this model; the file on disk is
-20.75. And I'd assumed it would hit the same 70% of rated bandwidth my MoE
+20.75. And I'd assumed it would hit the same ~70% of rated bandwidth my MoE
 does; it manages 80%. Two errors pulling in opposite directions, cancelling to
 within half a word a second. The shape of the answer was right. The precision
 was a gift.
@@ -162,7 +162,7 @@ screenshot. I haven't measured it. That's the next post, probably.
 
 ## The part that would have cost me
 
-The draft head is one flag. Leave it out and you have a model 2.6x slower than
+The draft head is one flag. Leave it out and you have a model 2.5x slower than
 the one you removed, for no benefit at all — and it will look, from the outside,
 exactly like a working setup. It starts, it answers, it's just quietly bad.
 
